@@ -150,7 +150,7 @@ func main() {
 
 				go func(c *discordgo.Channel) {
 					timer := time.NewTicker(300 * time.Second)
-					for _ = range timer.C {
+					for range timer.C {
 						if len(c.Recipients) == 0 {
 							_, err := ctx.Ses.ChannelDelete(teamChan.ID)
 							if err != nil {
