@@ -26,10 +26,18 @@ type Draw struct {
 }
 
 func (d *Draw) DrawTeams(ctx *exrouter.Context) {
+	game := d.Game.Name
+	guild, channel, err := getGuildAndChan(ctx)
+	if err != nil {
+		ctx.Reply("Error drawing teams for ", game, ", please try again")
+		return
+	}
+
+	defer delete(currentDraws[guild.ID], channel.ID)
+
 	// Wait for timeout timer to expire
 	<-d.timer.C
 
-	game := d.Game.Name
 	players := d.players
 	numPlayers := len(players)
 	playersPerTeam := d.Game.PlayersPerTeam
@@ -48,12 +56,6 @@ func (d *Draw) DrawTeams(ctx *exrouter.Context) {
 		ctx.Reply("Drawing ", numTeams, " team:")
 	} else {
 		ctx.Reply("Drawing ", numTeams, " teams:")
-	}
-
-	guild, channel, err := getGuildAndChan(ctx)
-	if err != nil {
-		ctx.Reply("Error drawing teams for ", game, ", please try again")
-		return
 	}
 
 	rand.Shuffle(numPlayers, func(i, j int) {
@@ -107,7 +109,6 @@ func (d *Draw) DrawTeams(ctx *exrouter.Context) {
 		}()
 	}
 
-	delete(currentDraws[guild.ID], channel.ID)
 }
 
 var currentDraws DrawMap
