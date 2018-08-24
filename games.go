@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/Necroforger/dgrouter/exrouter"
@@ -36,21 +35,13 @@ func init() {
 }
 
 func ListGames(ctx *exrouter.Context) error {
-	var games []string
-
+	var msg strings.Builder
+	fmt.Fprintln(&msg, "Known games:")
 	for _, game := range KnownGames {
-		games = append(games, game.Name)
+		fmt.Fprintf(&msg, "%s: %d players per team\n", game.Name, game.PlayersPerTeam)
 	}
 
-	sort.Strings(games)
-
-	msg := &strings.Builder{}
-	fmt.Fprintln(msg, "Known games:")
-	for _, game := range games {
-		fmt.Fprintf(msg, "%s: %d players per team\n", game, KnownGames[game].PlayersPerTeam)
-	}
-
-	ctx.Reply(msg)
+	ctx.Reply(msg.String())
 
 	return nil
 }
