@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/Necroforger/dgrouter/exrouter"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"math/rand"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/Necroforger/dgrouter/exrouter"
+	"github.com/bwmarrin/discordgo"
 )
 
 const (
@@ -50,6 +51,7 @@ func (d *Draw) DrawTeams(ctx *exrouter.Context) {
 	ctx.Reply("Drawing ", numTeams, " teams:")
 
 	playersPerTeam := numPlayers / numTeams
+	leftovers := numPlayers % numTeams
 
 	rand.Shuffle(numPlayers, func(i, j int) {
 		players[i], players[j] = players[j], players[i]
@@ -60,6 +62,9 @@ func (d *Draw) DrawTeams(ctx *exrouter.Context) {
 
 		x := (i - 1) * playersPerTeam
 		y := x + playersPerTeam
+		if i <= leftovers {
+			y++
+		}
 		teamPlayers := players[x:y]
 
 		ctx.Reply(teamName, ": <@", strings.Join(teamPlayers, ">, <@"), ">")
