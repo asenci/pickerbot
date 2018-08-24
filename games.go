@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/Necroforger/dgrouter/exrouter"
 	"sort"
 	"strings"
+
+	"github.com/Necroforger/dgrouter/exrouter"
 )
 
 type Game struct {
