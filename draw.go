@@ -47,11 +47,7 @@ func (d *Draw) DrawTeams(ctx *exrouter.Context) {
 	}
 
 	numTeams := (numPlayers / d.Game.PlayersPerTeam) + 1
-	if numTeams == 1 {
-		ctx.Reply("Drawing ", numTeams, " team:")
-	} else {
-		ctx.Reply("Drawing ", numTeams, " teams:")
-	}
+	ctx.Reply("Drawing ", numTeams, " teams:")
 
 	playersPerTeam := numPlayers / numTeams
 
@@ -64,9 +60,6 @@ func (d *Draw) DrawTeams(ctx *exrouter.Context) {
 
 		x := (i - 1) * playersPerTeam
 		y := x + playersPerTeam
-		if y > numPlayers {
-			y = numPlayers
-		}
 		teamPlayers := players[x:y]
 
 		ctx.Reply(teamName, ": <@", strings.Join(teamPlayers, ">, <@"), ">")
