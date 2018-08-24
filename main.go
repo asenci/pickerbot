@@ -19,27 +19,10 @@ func main() {
 
 	router := exrouter.New()
 
-	router.On("play", func(ctx *exrouter.Context) {
-		err := NewDraw(ctx)
-		if err != nil {
-			ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request. Please try again.")
-		}
-	}).Desc("start a team draw")
-
-	router.On("me", func(ctx *exrouter.Context) {
-		err := JoinDraw(ctx)
-		if err != nil {
-			ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request. Please try again.")
-		}
-	}).Desc(fmt.Sprintf("join the latest team draw"))
-
-	router.On("games", func(ctx *exrouter.Context) {
-		ListGames(ctx)
-	}).Desc(fmt.Sprintf("list of known games"))
-
-	router.On("ping", func(ctx *exrouter.Context) {
-		ctx.Reply("pong")
-	}).Desc("responds with pong")
+	router.On("play", HandlerFuncWrapper(NewDraw)).Desc("start a team draw")
+	router.On("games", HandlerFuncWrapper(ListGames)).Desc("list of known games")
+	router.On("me", HandlerFuncWrapper(JoinDraw)).Desc("join the latest team draw")
+	router.On("ping", HandlerFuncWrapper(Ping)).Desc("responds with pong")
 
 	router.Default = router.On("help", func(ctx *exrouter.Context) {
 		helpText := "```"
@@ -84,5 +67,17 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	if Verbose {
 		log.Printf("received %s signal, exiting\n", <-sc)
+	}
+}
+
+func HandlerFuncWrapper(fn func(ctx *exrouter.Context) error) func(ctx *exrouter.Context) {
+	return func(ctx *exrouter.Context) {
+		if Verbose {
+			log.Printf("received request from %s, %s", ctx.Msg.Author.Username, ctx.Args.After(0))
+		}
+
+		if err := fn(ctx); err != nil {
+			ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request. Please try again.")
+		}
 	}
 }

@@ -34,7 +34,7 @@ func init() {
 	KnownGames.Register("PUBG", 4)
 }
 
-func ListGames(ctx *exrouter.Context) {
+func ListGames(ctx *exrouter.Context) error {
 	var games []string
 
 	for _, game := range KnownGames {
@@ -51,4 +51,5 @@ func ListGames(ctx *exrouter.Context) {
 
 	ctx.Reply(msg)
 
+	return nil
 }
