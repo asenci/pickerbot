@@ -52,7 +52,9 @@ func main() {
 	}).Desc("prints this help menu")
 
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.Ready) {
-		log.Println("ready to process requests")
+		if Verbose {
+			log.Println("ready to process requests")
+		}
 	})
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		router.FindAndExecute(s, "", s.State.User.ID, m.Message)
@@ -61,16 +63,26 @@ func main() {
 		router.FindAndExecute(s, "", s.State.User.ID, m.Message)
 	})
 
-	log.Println("connecting to Discord")
+	if Verbose {
+		log.Println("connecting to Discord")
+	}
 	err = s.Open()
 	if err != nil {
 		log.Fatal("error connecting to Discord,", err)
 	}
 	defer s.Close()
-	defer log.Println("disconnecting from Discord")
-	log.Println("connected, press CTRL-C to exit")
+
+	if Verbose {
+		defer log.Println("disconnecting from Discord")
+	}
+
+	if Verbose {
+		log.Println(s.State.User.Username, "connected")
+	}
 
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	log.Printf("received %s signal, exiting\n", <-sc)
+	if Verbose {
+		log.Printf("received %s signal, exiting\n", <-sc)
+	}
 }
