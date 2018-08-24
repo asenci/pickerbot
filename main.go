@@ -19,6 +19,7 @@ func main() {
 
 	router := exrouter.New()
 	router.On("play", HandlerFuncWrapper(NewDraw)).Desc("start a team draw")
+	router.On("whereto", HandlerFuncWrapper(WhereTo)).Desc("pick a place to drop")
 	router.On("games", HandlerFuncWrapper(ListGames)).Desc("list of known games")
 	router.On("me", HandlerFuncWrapper(JoinDraw)).Desc("join the latest team draw")
 	router.On("ping", HandlerFuncWrapper(Ping)).Desc("responds with pong")
