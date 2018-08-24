@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"github.com/Necroforger/dgrouter/exrouter"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/Necroforger/dgrouter/exrouter"
+	"github.com/bwmarrin/discordgo"
 )
 
 func main() {
@@ -18,21 +18,11 @@ func main() {
 	}
 
 	router := exrouter.New()
-
 	router.On("play", HandlerFuncWrapper(NewDraw)).Desc("start a team draw")
 	router.On("games", HandlerFuncWrapper(ListGames)).Desc("list of known games")
 	router.On("me", HandlerFuncWrapper(JoinDraw)).Desc("join the latest team draw")
 	router.On("ping", HandlerFuncWrapper(Ping)).Desc("responds with pong")
-
-	router.Default = router.On("help", func(ctx *exrouter.Context) {
-		helpText := "```"
-		for _, v := range router.Routes {
-			helpText += fmt.Sprintf("%s: %s\n", v.Name, v.Description)
-		}
-		helpText += "```"
-
-		ctx.Reply("Hi mate, here is what I can do:", helpText)
-	}).Desc("prints this help menu")
+	router.Default = router.On("help", HandlerFuncWrapper(Help)).Desc("prints this help menu")
 
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.Ready) {
 		if Verbose {
