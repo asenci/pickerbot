@@ -39,24 +39,21 @@ func (d *Draw) DrawTeams(ctx *exrouter.Context) {
 	<-d.timer.C
 
 	players := d.players
-	numPlayers := len(players)
-	playersPerTeam := d.Game.PlayersPerTeam
 
-	if numPlayers < 2 {
+	numPlayers := len(players)
+	if numPlayers < d.Game.PlayersPerTeam {
 		ctx.Reply("Draw failed, not enough players")
 		return
 	}
 
-	numTeams := numPlayers / playersPerTeam
-	if numTeams == 0 {
-		numTeams++
-	}
-
+	numTeams := (numPlayers / d.Game.PlayersPerTeam) + 1
 	if numTeams == 1 {
 		ctx.Reply("Drawing ", numTeams, " team:")
 	} else {
 		ctx.Reply("Drawing ", numTeams, " teams:")
 	}
+
+	playersPerTeam := numPlayers / numTeams
 
 	rand.Shuffle(numPlayers, func(i, j int) {
 		players[i], players[j] = players[j], players[i]
@@ -144,13 +141,13 @@ func NewDraw(ctx *exrouter.Context) error {
 	numPlayersStr := ctx.Args.Get(2)
 
 	if gameName == "" {
-		ctx.Reply("Which game? Pick one from \"<@", ctx.Ses.State.User.ID, "> games\" or specify a new one")
+		ctx.Reply("Which game? Pick one from \"<@", ctx.Ses.State.User.ID, "> games\" or specify a new one:\n<@", ctx.Ses.State.User.ID, "> play <game name> <number of players per team>")
 		return nil
 	}
 
 	if numPlayersStr == "" {
-		if g, found := KnownGames[gameName]; !found {
-			ctx.Reply("I don't know ", gameName, ", how many players can play on the same team?")
+		if g, found := KnownGames[strings.ToUpper(gameName)]; !found {
+			ctx.Reply("I don't know ", gameName, ", how many players can play on the same team?\nUse: <@", ctx.Ses.State.User.ID, "> play ", gameName, " <number of players per team>")
 			return nil
 		} else {
 

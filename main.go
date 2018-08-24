@@ -17,12 +17,6 @@ func main() {
 		log.Fatal("error creating Discord session,", err)
 	}
 
-	//bot, err := s.User(s.State.User.ID)
-	//if err != nil {
-	//	log.Fatal("failed to retrieve bot details,", err)
-	//}
-	//log.Println("logged in as", bot.Username)
-
 	router := exrouter.New()
 
 	router.On("play", func(ctx *exrouter.Context) {
@@ -48,16 +42,13 @@ func main() {
 	}).Desc("responds with pong")
 
 	router.Default = router.On("help", func(ctx *exrouter.Context) {
-		helpText := ""
-		helloText := fmt.Sprintln("Hi mate, here is what I can do:")
-
-		helpText += "```"
+		helpText := "```"
 		for _, v := range router.Routes {
 			helpText += fmt.Sprintf("%s: %s\n", v.Name, v.Description)
 		}
 		helpText += "```"
 
-		ctx.Reply(helloText, helpText)
+		ctx.Reply("Hi mate, here is what I can do:", helpText)
 	}).Desc("prints this help menu")
 
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.Ready) {
@@ -73,7 +64,7 @@ func main() {
 	log.Println("connecting to Discord")
 	err = s.Open()
 	if err != nil {
-		log.Fatal("error opening connection,", err)
+		log.Fatal("error connecting to Discord,", err)
 	}
 	defer s.Close()
 	defer log.Println("disconnecting from Discord")

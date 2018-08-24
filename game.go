@@ -19,7 +19,7 @@ func (g *Game) String() string {
 type GameRegistry map[string]*Game
 
 func (m GameRegistry) Register(name string, playerPerTeam int) {
-	m[name] = &Game{
+	m[strings.ToUpper(name)] = &Game{
 		Name:           name,
 		PlayersPerTeam: playerPerTeam,
 	}
