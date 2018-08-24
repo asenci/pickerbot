@@ -30,10 +30,10 @@ func main() {
 		}
 	})
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		router.FindAndExecute(s, "", s.State.User.ID, m.Message)
+		RouterWrapper(router, s, m.Message)
 	})
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageUpdate) {
-		router.FindAndExecute(s, "", s.State.User.ID, m.Message)
+		RouterWrapper(router, s, m.Message)
 	})
 
 	if Verbose {
@@ -62,12 +62,23 @@ func main() {
 
 func HandlerFuncWrapper(fn func(ctx *exrouter.Context) error) func(ctx *exrouter.Context) {
 	return func(ctx *exrouter.Context) {
-		if Verbose {
-			log.Printf("received request from %s, %s", ctx.Msg.Author.Username, ctx.Args.After(0))
-		}
-
 		if err := fn(ctx); err != nil {
 			ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request. Please try again.")
 		}
+	}
+}
+
+func RouterWrapper(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message) {
+	// Ignore messages sent by the bot
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+	if Verbose {
+		log.Printf("received request from %s: \"%s\"\n", m.Author.Username, m.Content)
+	}
+
+	if err := r.FindAndExecute(s, Prefix, s.State.User.ID, m); err != nil {
+		log.Println("error processing request,", err)
 	}
 }
