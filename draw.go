@@ -13,7 +13,7 @@ import (
 
 const (
 	ChannelIdleTimeout = 300 * time.Second
-	DrawTimeout        = 5 * time.Second
+	DrawTimeout        = 15 * time.Second
 )
 
 type DrawMap map[string]map[string]*Draw
