@@ -1,29 +1,46 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/asenci/pickerbot/cmd"
+
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/bwmarrin/discordgo"
 )
 
-func main() {
+var (
+	Token   string
+	Prefix  string
+	Verbose bool
+)
 
+func init() {
+	flag.StringVar(&Token, "token", "", "bot token")
+	flag.StringVar(&Prefix, "prefix", "", "bot prefix")
+	flag.BoolVar(&Verbose, "verbose", false, "increase verbosity")
+	flag.Parse()
+}
+
+func main() {
 	s, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		log.Fatal("error creating Discord session,", err)
 	}
 
 	router := exrouter.New()
-	router.On("play", HandlerFuncWrapper(NewDraw)).Desc("start a team draw")
-	router.On("whereto", HandlerFuncWrapper(WhereTo)).Desc("pick a place to drop")
-	router.On("games", HandlerFuncWrapper(ListGames)).Desc("list of known games")
-	router.On("me", HandlerFuncWrapper(JoinDraw)).Desc("join the latest team draw")
-	router.On("ping", HandlerFuncWrapper(Ping)).Desc("responds with pong")
-	router.Default = router.On("help", HandlerFuncWrapper(Help)).Desc("prints this help menu")
+	router.On("draw", cmd.RunDraw).Desc("draw the teams")
+	router.On("games", cmd.Games).Desc("list of known games")
+	router.On("maps", cmd.Maps).Desc("list of known maps")
+	router.On("me", cmd.JoinDraw).Desc("join the latest team draw")
+	router.On("ping", cmd.Ping).Desc("responds with pong")
+	router.On("play", cmd.NewDraw).Desc("start a team draw")
+	router.On("whereto", cmd.WhereTo).Desc("pick a place to drop")
+	router.Default = router.On("help", cmd.Help).Desc("prints this help menu")
 
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.Ready) {
 		if Verbose {
@@ -31,10 +48,10 @@ func main() {
 		}
 	})
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-		RouterWrapper(router, s, m.Message)
+		wrapRouter(router, s, m.Message, Prefix, Verbose)
 	})
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageUpdate) {
-		RouterWrapper(router, s, m.Message)
+		wrapRouter(router, s, m.Message, Prefix, Verbose)
 	})
 
 	if Verbose {
@@ -44,7 +61,11 @@ func main() {
 	if err != nil {
 		log.Fatal("error connecting to Discord,", err)
 	}
-	defer s.Close()
+	defer func(s *discordgo.Session) {
+		if err := s.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}(s)
 
 	if Verbose {
 		defer log.Println("disconnecting from Discord")
@@ -61,25 +82,17 @@ func main() {
 	}
 }
 
-func HandlerFuncWrapper(fn func(ctx *exrouter.Context) error) func(ctx *exrouter.Context) {
-	return func(ctx *exrouter.Context) {
-		if err := fn(ctx); err != nil {
-			ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request. Please try again.")
-		}
-	}
-}
-
-func RouterWrapper(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message) {
+func wrapRouter(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message, prefix string, verbose bool) {
 	// Ignore messages sent by the bot
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	if Verbose {
+	if verbose {
 		log.Printf("received request from %s: \"%s\"\n", m.Author.Username, m.Content)
 	}
 
-	if err := r.FindAndExecute(s, Prefix, s.State.User.ID, m); err != nil {
+	if err := r.FindAndExecute(s, prefix, s.State.User.ID, m); err != nil {
 		log.Println("error processing request,", err)
 	}
 }

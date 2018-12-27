@@ -1,9 +1,8 @@
-package main
+package cmd
 
 import "github.com/Necroforger/dgrouter/exrouter"
 
 // ToDo: chill bro
-func Ping(ctx *exrouter.Context) error {
+func Ping(ctx *exrouter.Context) {
 	ctx.Reply("<@", ctx.Msg.Author.ID, "> pong")
-	return nil
 }
