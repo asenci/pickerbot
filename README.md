@@ -1,6 +1,6 @@
 # pickerbot
 
-Discord bot for picking up teams
+Discord bot for picking teams
 
 Source available at: https://github.com/asenci/pickerbot/
 
