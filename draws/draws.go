@@ -21,8 +21,6 @@ type Draw struct {
 }
 
 func (d *Draw) Run() (Teams, error) {
-	game := d.game.Name
-
 	numPlayers := len(d.players)
 	if numPlayers <= d.game.PlayersPerTeam {
 		return nil, DrawNotEnough
@@ -49,7 +47,7 @@ func (d *Draw) Run() (Teams, error) {
 	var first, last int
 	for i := 0; i < numTeams; i++ {
 		team := &Team{
-			fmt.Sprintf("%s team %d", game, i),
+			fmt.Sprintf("Team %d", i+1),
 			make(map[string]struct{}),
 		}
 

@@ -36,12 +36,12 @@ func RunDraw(ctx *exrouter.Context) {
 		return
 	}
 
-	channel, err := ctx.Ses.Channel(ctx.Msg.ChannelID)
-	if err != nil {
-		log.Printf("failed to retrieve channel, %s", err)
-	}
-
-	guild := channel.GuildID
+	// channel, err := ctx.Ses.Channel(ctx.Msg.ChannelID)
+	// if err != nil {
+	// 	log.Printf("failed to retrieve channel, %s", err)
+	// }
+	//
+	// guild := channel.GuildID
 
 	for _, team := range teams {
 		var members []string
@@ -51,22 +51,24 @@ func RunDraw(ctx *exrouter.Context) {
 
 		ctx.Reply(team.Name, ": <@", strings.Join(members, ">, <@"), ">")
 
-		teamChan, err := ctx.Ses.GuildChannelCreate(guild, team.Name, "voice")
-		if err != nil {
-			log.Printf("error creating team channel %q, %s", team.Name, err)
-
-			ctx.Reply("Error creating channel for team ", team.Name, ", please create it manually")
-		}
-
-		for _, player := range members {
-			err = ctx.Ses.GuildMemberMove(guild, player, teamChan.ID)
-			if err != nil {
-				log.Printf("error moving user to channel %q, %s", team.Name, err)
-
-				ctx.Reply("Error moving <@", player, "> to channel ", team.Name, ", please join manually")
-			}
-		}
-
+		// TODO: automatic channel management
+		// TODO: duplicated channel names
+		// teamChan, err := ctx.Ses.GuildChannelCreate(guild, team.Name, "voice")
+		// if err != nil {
+		// 	log.Printf("error creating team channel %q, %s", team.Name, err)
+		//
+		// 	ctx.Reply("Error creating channel for team ", team.Name, ", please create it manually")
+		// }
+		//
+		// for _, player := range members {
+		// 	err = ctx.Ses.GuildMemberMove(guild, player, teamChan.ID)
+		// 	if err != nil {
+		// 		log.Printf("error moving user to channel %q, %s", team.Name, err)
+		//
+		// 		ctx.Reply("Error moving <@", player, "> to channel ", team.Name, ", please join manually")
+		// 	}
+		// }
+		//
 		// TODO: cleanup idle channels (use Guild.VoiceStates?)
 		// go func(channel, name string) {
 		// 	timer := time.NewTicker(5 * time.Minute)
