@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/asenci/pickerbot/cmd"
-
+	"github.com/Necroforger/dgrouter"
 	"github.com/Necroforger/dgrouter/exrouter"
+	"github.com/asenci/pickerbot/cmd"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -88,11 +88,16 @@ func wrapRouter(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message, p
 		return
 	}
 
+	err := r.FindAndExecute(s, prefix, s.State.User.ID, m)
+	if err == dgrouter.ErrCouldNotFindRoute {
+		return
+	}
+
 	if verbose {
 		log.Printf("received request from %s: \"%s\"\n", m.Author.Username, m.Content)
 	}
 
-	if err := r.FindAndExecute(s, prefix, s.State.User.ID, m); err != nil {
+	if err != nil {
 		log.Println("error processing request,", err)
 	}
 }
