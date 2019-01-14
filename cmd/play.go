@@ -19,7 +19,7 @@ func NewDraw(ctx *exrouter.Context) {
 	numPlayersStr := ctx.Args.Get(2)
 
 	if gameName == "" {
-		ctx.Reply("Which game? Pick one from \"<@", ctx.Ses.State.User.ID, "> games\" or specify a new one:\n<@", ctx.Ses.State.User.ID, "> play <game name> <number of players per team>")
+		ctx.Reply("Which game? Pick one from **@", ctx.Ses.State.User.Username, " games** or specify a custom one: **@", ctx.Ses.State.User.Username, " play <__game name__> <__number of players per team__>**")
 		return
 	}
 
@@ -27,7 +27,7 @@ func NewDraw(ctx *exrouter.Context) {
 		game, err = games.All.Get(gameName)
 		if err != nil {
 			if err == games.GameNotFound {
-				ctx.Reply("I don't know ", gameName, ", how many players can play on the same team?\nUse: <@", ctx.Ses.State.User.ID, "> play ", gameName, " <number of players per team>")
+				ctx.Reply("I don't know *", gameName, "*, how many players can play on the same team? Use: **@", ctx.Ses.State.User.Username, " play ", gameName, " <__number of players per team__>**")
 				return
 			}
 		}
@@ -58,7 +58,7 @@ func NewDraw(ctx *exrouter.Context) {
 		return
 	}
 
-	ctx.Reply("Sweet! Who is up for some ", game, "? (reply with \"<@", ctx.Ses.State.User.ID, "> me\")")
+	ctx.Reply("Sweet! Who is up for some ", game, "? Reply with **@", ctx.Ses.State.User.Username, " me**")
 
 	time.AfterFunc(5*time.Minute, func() {
 		_, err := draws.All.Get(ctx.Msg.ChannelID)

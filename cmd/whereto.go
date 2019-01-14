@@ -20,35 +20,35 @@ func WhereTo(ctx *exrouter.Context) {
 	if locations != "" {
 		ls := strings.Split(locations, " ")
 		i := rand.Intn(len(ls))
-		ctx.Reply("Let's go ", ls[i], "!")
+		ctx.Reply("Let's go *", ls[i], "*!")
 		return
 	}
 
 	if gameName == "" {
-		ctx.Reply("Which game? Pick one from \"<@", ctx.Ses.State.User.ID, "> games\" or specify a custom one:\n<@", ctx.Ses.State.User.ID, "> whereto <game name> <map name> <location 1> [<location 2> ...]")
+		ctx.Reply("Which game? Pick one from **@", ctx.Ses.State.User.Username, " games** or specify a custom one: **@", ctx.Ses.State.User.Username, " whereto <__game name__> <__map name__> <__location 1__> <__location 2__> ...**")
 		return
 	}
 
 	game, err := games.All.Get(gameName)
 	if err != nil {
 		if err == games.GameNotFound {
-			ctx.Reply("I don't know ", gameName, ", give me some locations to draw")
+			ctx.Reply("I don't know *", gameName, "*, give me some locations to draw")
 			return
 		}
 
 		log.Println(err)
 		ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request: ", err)
-	}
-
-	if mapName == "" {
-		ctx.Reply("Which map? Pick one from \"<@", ctx.Ses.State.User.ID, "> maps\" or specify a custom one:\n<@", ctx.Ses.State.User.ID, "> whereto <game name> <map name> <location 1> [<location 2> ...]")
-		return
 	}
 
 	gameMap, err := game.Maps.Get(mapName)
 	if err != nil {
 		if err == maps.MapNotFound {
-			ctx.Reply("I don't know ", mapName, ", give me some locations to draw")
+			if mapName == "" {
+				ctx.Reply("Which map? Pick one from **@", ctx.Ses.State.User.Username, " maps ", gameName, "** or specify a custom one: **@", ctx.Ses.State.User.Username, " whereto <__game name__> <__map name__> <__location 1__> <__location 2__> ...**")
+				return
+			}
+
+			ctx.Reply("I don't know *", mapName, "*, give me some locations to draw")
 			return
 		}
 
@@ -56,5 +56,5 @@ func WhereTo(ctx *exrouter.Context) {
 		ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request: ", err)
 	}
 
-	ctx.Reply("Let's go ", gameMap.Locations.Random(), "!")
+	ctx.Reply("Let's go *", gameMap.Locations.Random(), "*!")
 }

@@ -18,7 +18,7 @@ func RunDraw(ctx *exrouter.Context) {
 
 	draw, err := draws.All.Get(ctx.Msg.ChannelID)
 	if err == draws.DrawNotFound {
-		ctx.Reply("No draws currently in place, let's start a new one?")
+		ctx.Reply("No draws currently in place, let's start a new one? Pick a game from **@", ctx.Ses.State.User.Username, " games**")
 		return
 	}
 	if err != nil {

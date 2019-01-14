@@ -8,7 +8,7 @@ import (
 func JoinDraw(ctx *exrouter.Context) {
 	draw, err := draws.All.Get(ctx.Msg.ChannelID)
 	if err == draws.DrawNotFound {
-		ctx.Reply("No draws currently in place, let's start a new one?")
+		ctx.Reply("No draws currently in place, let's start a new one? Pick a game from **@", ctx.Ses.State.User.Username, " games**")
 		return
 	}
 	if err != nil {
@@ -20,7 +20,7 @@ func JoinDraw(ctx *exrouter.Context) {
 
 	err = draw.Join(player)
 	if err == draws.DrawAlreadyJoined {
-		ctx.Reply("<@", ctx.Msg.Author.ID, "> you are already on the draw.")
+		ctx.Reply("<@", ctx.Msg.Author.ID, "> you are already in the draw.")
 		return
 	}
 	if err != nil {

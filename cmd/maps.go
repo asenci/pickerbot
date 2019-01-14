@@ -14,14 +14,14 @@ func Maps(ctx *exrouter.Context) {
 	gameName := ctx.Args.Get(1)
 
 	if gameName == "" {
-		ctx.Reply("Which game? Pick one from \"<@", ctx.Ses.State.User.ID, "> games\"")
+		ctx.Reply("Which game? Pick one from **@", ctx.Ses.State.User.Username, " games**")
 		return
 	}
 
 	game, err := games.All.Get(gameName)
 	if err != nil {
 		if err == games.GameNotFound {
-			ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, I don't know ", gameName)
+			ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, I don't know *", gameName, "*")
 			return
 		}
 
