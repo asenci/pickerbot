@@ -1,32 +1,30 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/asenci/pickerbot/draws"
 )
 
-func JoinDraw(ctx *exrouter.Context) {
+func JoinDraw(ctx *exrouter.Context) (string, error) {
 	draw, err := draws.All.Get(ctx.Msg.ChannelID)
-	if err == draws.DrawNotFound {
-		ctx.Reply("No draws currently in place, let's start a new one? Pick a game from **@", ctx.Ses.State.User.Username, " games**")
-		return
-	}
 	if err != nil {
-		ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request. Please try again.")
-		return
+		if err == draws.DrawNotFound {
+			return fmt.Sprintf("No draws currently in place, let's start a new one? Pick a game from **@%s games**", ctx.Ses.State.User.Username), err
+		}
+
+		return "", err
 	}
 
-	player := ctx.Msg.Author.ID
-
-	err = draw.Join(player)
-	if err == draws.DrawAlreadyJoined {
-		ctx.Reply("<@", ctx.Msg.Author.ID, "> you are already in the draw.")
-		return
-	}
+	err = draw.Join(ctx.Msg.Author.ID)
 	if err != nil {
-		ctx.Reply("Sorry <@", ctx.Msg.Author.ID, ">, an error has occurred while processing your request. Please try again.")
-		return
+		if err == draws.DrawAlreadyJoined {
+			return fmt.Sprintf("<@%s> you have already joined the draw.", ctx.Msg.Author.ID), err
+		}
+
+		return "", err
 	}
 
-	ctx.Reply("<@", player, "> joined the draw")
+	return fmt.Sprintf("<@%s> joined the draw", ctx.Msg.Author.ID), nil
 }

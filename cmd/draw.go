@@ -1,58 +1,57 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 	"strings"
 
 	"github.com/Necroforger/dgrouter/exrouter"
 	"github.com/asenci/pickerbot/draws"
 )
 
-func RunDraw(ctx *exrouter.Context) {
+func RunDraw(ctx *exrouter.Context) (string, error) {
 	defer func(channel string) {
-		err := draws.All.Delete(channel)
-		if err != nil {
-			log.Println("error removing draw,", err)
-		}
+		draws.All.Delete(channel)
 	}(ctx.Msg.ChannelID)
 
 	draw, err := draws.All.Get(ctx.Msg.ChannelID)
-	if err == draws.DrawNotFound {
-		ctx.Reply("No draws currently in place, let's start a new one? Pick a game from **@", ctx.Ses.State.User.Username, " games**")
-		return
-	}
 	if err != nil {
-		ctx.Reply("An error has occurred while processing your request. Please try again.")
-		return
+		if err == draws.DrawNotFound {
+			return fmt.Sprintf("No draws currently in place, let's start a new one? Use **@%s play** to start a new draw.", ctx.Ses.State.User.Username), err
+		}
+
+		return "", nil
 	}
 
 	teams, err := draw.Run()
-	if err == draws.DrawNotEnough {
-		ctx.Reply("Not enough players for drawing a team")
-		return
-	}
 	if err != nil {
-		ctx.Reply("An error has occurred while processing your request. Please try again.")
-		return
+		if err == draws.DrawNotEnough {
+			return "Not enough players for drawing a team", err
+		}
+
+		return "", nil
 	}
 
-	// channel, err := ctx.Ses.Channel(ctx.Msg.ChannelID)
-	// if err != nil {
-	// 	log.Printf("failed to retrieve channel, %s", err)
-	// }
-	//
-	// guild := channel.GuildID
-
+	s := strings.Builder{}
 	for _, team := range teams {
 		var members []string
 		for p, _ := range team.Players {
 			members = append(members, p)
 		}
 
-		ctx.Reply(team.Name, ": <@", strings.Join(members, ">, <@"), ">")
+		_, err := fmt.Fprintf(&s, "%s: <@%s>", team.Name, strings.Join(members, ">, <@"))
+		if err != nil {
+			return "", err
+		}
 
 		// TODO: automatic channel management
 		// TODO: duplicated channel names
+		// channel, err := ctx.Ses.Channel(ctx.Msg.ChannelID)
+		// if err != nil {
+		// 	log.Printf("failed to retrieve channel, %s", err)
+		// }
+		//
+		// guild := channel.GuildID
+		//
 		// teamChan, err := ctx.Ses.GuildChannelCreate(guild, team.Name, "voice")
 		// if err != nil {
 		// 	log.Printf("error creating team channel %q, %s", team.Name, err)
@@ -94,4 +93,6 @@ func RunDraw(ctx *exrouter.Context) {
 		// 	}
 		// }(teamChan.ID, team.Name)
 	}
+
+	return s.String(), nil
 }

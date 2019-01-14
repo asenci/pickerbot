@@ -80,10 +80,8 @@ func (d *Draw) Join(player string) error {
 
 type Draws map[string]*Draw
 
-func (dm Draws) Delete(channel string) error {
+func (dm Draws) Delete(channel string) {
 	delete(dm, channel)
-
-	return nil
 }
 
 func (dm Draws) Get(channel string) (*Draw, error) {

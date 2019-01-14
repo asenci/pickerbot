@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	GameNotFound      = errors.New("registry entry not found")
-	GameAlreadyExists = errors.New("registry entry already exists")
+	GameNotFound      = errors.New("game not found")
+	GameAlreadyExists = errors.New("game already exists")
 )
 
 type Game struct {

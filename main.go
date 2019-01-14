@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	Token   string
+	Token string
 	Prefix  string
 	Verbose bool
 )
@@ -33,14 +34,14 @@ func main() {
 	}
 
 	router := exrouter.New()
-	router.On("draw", cmd.RunDraw).Desc("draw the teams")
-	router.On("games", cmd.Games).Desc("list of known games")
-	router.On("maps", cmd.Maps).Desc("list of known maps")
-	router.On("me", cmd.JoinDraw).Desc("join the latest team draw")
-	router.On("ping", cmd.Ping).Desc("responds with pong")
-	router.On("play", cmd.NewDraw).Desc("start a team draw")
-	router.On("whereto", cmd.WhereTo).Desc("pick a place to drop")
-	router.Default = router.On("help", cmd.Help).Desc("prints this help menu")
+	router.On("draw", wrapCmd(cmd.RunDraw, Verbose)).Desc("pick teams for the current draw")
+	router.On("games", wrapCmd(cmd.Games, Verbose)).Desc("list known games")
+	router.On("maps", wrapCmd(cmd.Maps, Verbose)).Desc("list known game maps")
+	router.On("me", wrapCmd(cmd.JoinDraw, Verbose)).Desc("join the current draw")
+	router.On("ping", wrapCmd(cmd.Ping, Verbose)).Desc("responds with pong")
+	router.On("play", wrapCmd(cmd.NewDraw, Verbose)).Desc("start a new draw")
+	router.On("whereto", wrapCmd(cmd.WhereTo, Verbose)).Desc("pick a place to drop or spawn")
+	router.Default = router.On("help", wrapCmd(cmd.Help, Verbose)).Desc("prints this help menu")
 
 	s.AddHandler(func(s *discordgo.Session, m *discordgo.Ready) {
 		if Verbose {
@@ -82,6 +83,33 @@ func main() {
 	}
 }
 
+func wrapCmd(f func(ctx *exrouter.Context) (string, error), verbose bool) exrouter.HandlerFunc {
+	return func(ctx *exrouter.Context) {
+		sendReply := func(s string) {
+			if verbose {
+				log.Printf("sending reply: %q\n", s)
+			}
+			_, err := ctx.Reply(s)
+			if err != nil {
+				log.Println("error sending reply,", err)
+			}
+		}
+
+		reply, err := f(ctx)
+		if err != nil {
+			log.Println("error processing request,", err)
+
+			if reply == "" {
+				reply = fmt.Sprintf("Sorry <@%s>, an error has occurred while processing your request. Please try again.", ctx.Msg.Author.ID)
+			}
+		}
+
+		if reply != "" {
+			sendReply(reply)
+		}
+	}
+}
+
 func wrapRouter(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message, prefix string, verbose bool) {
 	// Ignore messages sent by the bot
 	if m.Author.ID == s.State.User.ID {
@@ -93,8 +121,9 @@ func wrapRouter(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message, p
 		return
 	}
 
+	// TODO: ignore messages without prefix or mention and move logging before execution
 	if verbose {
-		log.Printf("received request from %s: \"%s\"\n", m.Author.Username, m.Content)
+		log.Printf("received request from %s: %q\n", m.Author.Username, m.Content)
 	}
 
 	if err != nil {

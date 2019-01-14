@@ -9,12 +9,19 @@ import (
 	"github.com/Necroforger/dgrouter/exrouter"
 )
 
-func Games(ctx *exrouter.Context) {
-	var s strings.Builder
-	fmt.Fprintln(&s, "Known games:")
-	for alias, game := range games.All {
-		fmt.Fprintf(&s, "  :small_blue_diamond: %s (%d players per team): **@%s play %s**\n", game.Name, game.PlayersPerTeam, ctx.Ses.State.User.Username, strings.ToLower(alias))
+func Games(ctx *exrouter.Context) (string, error) {
+	s := strings.Builder{}
+	_, err := fmt.Fprintln(&s, "Known games:")
+	if err != nil {
+		return "", err
 	}
 
-	ctx.Reply(s.String())
+	for alias, game := range games.All {
+		_, err := fmt.Fprintf(&s, "  :video_game: %s (%d players per team): **@%s play %s**\n", game.Name, game.PlayersPerTeam, ctx.Ses.State.User.Username, strings.ToLower(alias))
+		if err != nil {
+			return "", err
+		}
+	}
+
+	return s.String(), nil
 }

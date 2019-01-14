@@ -7,14 +7,20 @@ import (
 	"github.com/Necroforger/dgrouter/exrouter"
 )
 
-func Help(ctx *exrouter.Context) {
-	s := &strings.Builder{}
-
-	fmt.Fprint(s, "```")
-	for _, v := range ctx.Route.Parent.Routes {
-		fmt.Fprintf(s, "%s: %s\n", v.Name, v.Description)
+func Help(ctx *exrouter.Context) (string, error) {
+	s := strings.Builder{}
+	_, err := fmt.Fprintln(&s, "Hi mate, here is what I can do:")
+	if err != nil {
+		return "", err
 	}
-	fmt.Fprint(s, "```")
 
-	ctx.Reply("Hi mate, here is what I can do:", s)
+	for _, cmd := range ctx.Route.Parent.Routes {
+		_, err := fmt.Fprintf(&s, "  :white_small_square: **%s %s**: %s\n", ctx.Ses.State.User.Username, cmd.Name, cmd.Description)
+		if err != nil {
+			return "", err
+		}
+
+	}
+
+	return s.String(), nil
 }
