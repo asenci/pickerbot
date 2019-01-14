@@ -60,7 +60,7 @@ func NewDraw(ctx *exrouter.Context) {
 
 	ctx.Reply("Sweet! Who is up for some ", game, "? (reply with \"<@", ctx.Ses.State.User.ID, "> me\")")
 
-	time.AfterFunc(time.Minute, func() {
+	time.AfterFunc(5*time.Minute, func() {
 		_, err := draws.All.Get(ctx.Msg.ChannelID)
 		if err == draws.DrawNotFound {
 			return
