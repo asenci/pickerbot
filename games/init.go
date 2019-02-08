@@ -28,6 +28,29 @@ func init() {
 
 	All = Games{}
 
+	g = initGame("Apex", 3, map[string][]string{
+		"": []string{
+			"Airbase",
+			"Artillery",
+			"Bridges",
+			"Bunker",
+			"Cascades",
+			"Hydro Dam",
+			"Market",
+			"Relay",
+			"Repulsor",
+			"Runoff",
+			"Skull Town",
+			"Slum Lakes",
+			"Swamps",
+			"The Pit",
+			"Thunderdome",
+			"Water Treatment",
+			"Wetlands",
+		},
+	})
+	g.Name = "Apex Legends"
+
 	g = initGame("BF4", 5, map[string][]string{
 		"": []string{"A", "B", "C", "D", "E"},
 	})
