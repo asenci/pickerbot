@@ -38,7 +38,7 @@ func RunDraw(ctx *exrouter.Context) (string, error) {
 			members = append(members, p)
 		}
 
-		_, err := fmt.Fprintf(&s, "%s: <@%s>", team.Name, strings.Join(members, ">, <@"))
+		_, err := fmt.Fprintf(&s, "%s: <@%s>\n", team.Name, strings.Join(members, ">, <@"))
 		if err != nil {
 			return "", err
 		}
