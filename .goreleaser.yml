@@ -1,0 +1,56 @@
+---
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - freebsd
+      - linux
+      - windows
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - 6
+      - 7
+    ignore:
+      - goos: darwin
+        goarch: 386
+      - goos: freebsd
+        goarch: arm
+      - goos: linux
+        goarch: 386
+      - goos: windows
+        goarch: 386
+archives:
+  - files:
+      - LICENSE.txt
+      - README.md
+    format_overrides:
+      - goos: windows
+        format: zip
+    replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      386: i386
+      amd64: x86_64
+dockers:
+  - image_templates:
+      - "asenci/{{ .ProjectName }}:latest"
+      - "asenci/{{ .ProjectName }}:{{ .Tag }}"
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-build{{ .ShortCommit }}"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
