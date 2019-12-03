@@ -34,7 +34,7 @@ func RunDraw(ctx *exrouter.Context) (string, error) {
 	s := strings.Builder{}
 	for _, team := range teams {
 		var members []string
-		for p, _ := range team.Players {
+		for p := range team.Players {
 			members = append(members, p)
 		}
 

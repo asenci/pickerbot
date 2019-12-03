@@ -56,11 +56,11 @@ func TestDraw_Run(t *testing.T) {
 				t.Errorf("error drawing %d-player teams for %d players, %s", i, j, err)
 			}
 
-			for player, _ := range draw.players {
+			for player := range draw.players {
 				var found bool
 
 				for _, team := range teams {
-					for p, _ := range team.Players {
+					for p := range team.Players {
 						if _, ok := draw.players[p]; !ok {
 							t.Errorf("unknown player %q", player)
 						}

@@ -27,7 +27,7 @@ func (d *Draw) Run() (Teams, error) {
 	}
 
 	players := make([]string, 0, numPlayers)
-	for p, _ := range d.players {
+	for p := range d.players {
 		players = append(players, p)
 	}
 	rand.Shuffle(numPlayers, func(i, j int) {
