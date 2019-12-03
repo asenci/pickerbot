@@ -20,6 +20,13 @@ type Draw struct {
 	players map[string]struct{}
 }
 
+func NewDraw(game *games.Game) *Draw {
+	return &Draw{
+		game:    game,
+		players: map[string]struct{}{},
+	}
+}
+
 func (d *Draw) Run() (Teams, error) {
 	numPlayers := len(d.players)
 	if numPlayers <= d.game.PlayersPerTeam {
