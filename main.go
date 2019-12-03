@@ -20,7 +20,7 @@ var (
 	Prefix       string
 	Verbose      bool
 	PrintVersion bool
-	version      string
+	version      = "dev"
 )
 
 func init() {
