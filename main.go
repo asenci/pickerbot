@@ -137,6 +137,7 @@ func wrapRouter(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message, p
 
 	err := r.FindAndExecute(s, prefix, s.State.User.ID, m)
 	if err == dgrouter.ErrCouldNotFindRoute {
+		log.Printf("invalid request from %s: %q\n", m.Author.Username, m.Content)
 		return
 	}
 
