@@ -26,5 +26,9 @@ func JoinDraw(ctx *exrouter.Context) (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("<@%s> joined the draw", ctx.Msg.Author.ID), nil
+	playersPlural := ""
+	if draw.NumberOfPlayers() != 1 {
+		playersPlural = "s"
+	}
+	return fmt.Sprintf("<@%s> joined, %d player%s on the draw", ctx.Msg.Author.ID, draw.NumberOfPlayers(), playersPlural), nil
 }
