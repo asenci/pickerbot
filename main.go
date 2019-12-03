@@ -16,18 +16,28 @@ import (
 
 var (
 	Token string
-	Prefix  string
-	Verbose bool
+	// ManageChannels bool
+	Prefix       string
+	Verbose      bool
+	PrintVersion bool
+	version      string
 )
 
 func init() {
 	flag.StringVar(&Token, "token", "", "bot token")
+	// flag.BoolVar(&ManageChannels, "manage-channels", false, "manage voice channels")
 	flag.StringVar(&Prefix, "prefix", "", "bot prefix")
 	flag.BoolVar(&Verbose, "verbose", false, "increase verbosity")
+	flag.BoolVar(&PrintVersion, "version", false, "print version")
 	flag.Parse()
 }
 
 func main() {
+	if PrintVersion {
+		fmt.Printf("pickerbot %s\n", version)
+		return
+	}
+
 	s, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		log.Fatal("error creating Discord session,", err)
@@ -77,7 +87,7 @@ func main() {
 	}
 
 	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
 	if Verbose {
 		log.Printf("received %s signal, exiting\n", <-sc)
 	}
