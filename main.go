@@ -38,6 +38,10 @@ func main() {
 		return
 	}
 
+	if Verbose {
+		log.Printf("starting pickerbot %s\n", version)
+	}
+
 	s, err := discordgo.New("Bot " + Token)
 	if err != nil {
 		log.Fatal("error creating Discord session,", err)
