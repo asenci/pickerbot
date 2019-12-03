@@ -54,6 +54,7 @@ func main() {
 	router.On("me", wrapCmd(cmd.JoinDraw, Verbose)).Desc("join the current draw")
 	router.On("ping", wrapCmd(cmd.Ping, Verbose)).Desc("responds with pong")
 	router.On("play", wrapCmd(cmd.NewDraw, Verbose)).Desc("start a new draw")
+	router.On("quickdraw", wrapCmd(cmd.RunQuickDraw, Verbose)).Desc("run a quick draw with all online players on the channel")
 	router.On("whereto", wrapCmd(cmd.WhereTo, Verbose)).Desc("pick a place to drop or spawn")
 	router.Default = router.On("help", wrapCmd(cmd.Help, Verbose)).Desc("prints this help menu")
 
