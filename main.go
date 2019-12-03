@@ -130,14 +130,14 @@ func wrapRouter(r *exrouter.Route, s *discordgo.Session, m *discordgo.Message, p
 		return
 	}
 
+	// TODO: ignore messages without prefix or mention
+	if verbose {
+		log.Printf("received request from %s: %q\n", m.Author.Username, m.Content)
+	}
+
 	err := r.FindAndExecute(s, prefix, s.State.User.ID, m)
 	if err == dgrouter.ErrCouldNotFindRoute {
 		return
-	}
-
-	// TODO: ignore messages without prefix or mention and move logging before execution
-	if verbose {
-		log.Printf("received request from %s: %q\n", m.Author.Username, m.Content)
 	}
 
 	if err != nil {
