@@ -78,6 +78,10 @@ func (d *Draw) Join(player string) error {
 	return nil
 }
 
+func (d *Draw) NumberOfPlayers() int {
+	return len(d.players)
+}
+
 type Draws map[string]*Draw
 
 func (dm Draws) Delete(channel string) {
